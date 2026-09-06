@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CIG Smart Attendance System</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script defer src="./face-api.min.js"></script>
+    <script defer src="./app.js"></script>
+</head>
+
+<body>
+
+<header class="header-pro">
+    <div class="header-container">
+
+        <div class="brand">
+            <div class="logo-box">CIG</div>
+
+            <div class="brand-text">
+                <h1>Smart Attendance System</h1>
+                <p>AI-Powered Facial Recognition with Liveness Detection</p>
+            </div>
+        </div>
+
+        <div class="header-meta">
+            <div class="meta-item">
+                <span class="meta-label">Mode</span>
+                <span class="meta-value">Offline</span>
+            </div>
+
+            <div class="meta-item">
+                <span class="meta-label">Engine</span>
+                <span class="meta-value">Face-API.js</span>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+<div class="badge-strip">
+    REAL-TIME FACE RECOGNITION |
+    AI-POWERED LIVENESS |
+    OTP VOICE VERIFICATION |
+    ANTI-SPOOFING VERIFICATION
+</div>
+
+<main class="container">
+
+    <div class="grid-layout">
+
+        <!-- CAMERA -->
+        <section class="card video-card">
+
+            <div class="card-header">
+                <h3>Live Camera Feed</h3>
+                <span id="dateText" class="timestamp"></span>
+            </div>
+
+            <div class="video-container">
+
+                <!-- SINGLE CHALLENGE BOX -->
+                <div id="challengeBox" class="challenge-box">
+
+                    <h2 id="challengeText">
+                        Challenge: Loading...
+                    </h2>
+
+                    <img
+                        id="challengeIcon"
+                        src="https://cdn-icons-png.flaticon.com/512/1828/1828640.png"
+                        alt="Challenge"
+                    >
+
+                    <p id="challengeStatus">
+                        Waiting for face...
+                    </p>
+
+                </div>
+
+                <!-- CAMERA -->
+                <video
+                    id="video"
+                    autoplay
+                    muted
+                    playsinline
+                ></video>
+
+                <!-- FACE DETECTION OVERLAY -->
+                <canvas id="overlay"></canvas>
+
+                <!-- SPEECH INSTRUCTION -->
+                <div id="instructionBox">
+                    <p id="speechText">
+                        System Initializing...
+                    </p>
+                </div>
+
+                <!-- OTP -->
+                <div id="otpBox">
+
+                    <h3>🔐 Security Check</h3>
+
+                    <p>
+                        Speak this OTP clearly:
+                    </p>
+
+                    <div id="otpValue">
+                        ---
+                    </div>
+
+                    <p id="micStatus">
+                        Mic: Waiting...
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div
+                id="statusText"
+                class="status-bar status-info"
+            >
+                Initializing system...
+            </div>
+
+        </section>
+
+
+        <!-- SIDEBAR -->
+        <section class="sidebar">
+
+            <!-- STATISTICS -->
+            <div class="card stats-card">
+
+                <div class="stat-row">
+
+                    <div class="stat-box">
+                        <div class="stat-label">
+                            Total Students
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="totalPersonnel"
+                        >
+                            0
+                        </div>
+                    </div>
+
+
+                    <div class="stat-box stat-success">
+                        <div class="stat-label">
+                            Present
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="totalPresent"
+                        >
+                            0
+                        </div>
+                    </div>
+
+
+                    <div class="stat-box stat-danger">
+                        <div class="stat-label">
+                            Absent
+                        </div>
+
+                        <div
+                            class="stat-value"
+                            id="totalAbsent"
+                        >
+                            0
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PROGRESS -->
+            <div class="card">
+
+                <div class="progress-info">
+
+                    <span>
+                        Attendance Rate
+                    </span>
+
+                    <span id="progressPercent">
+                        0%
+                    </span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        id="progressBar"
+                        class="progress-fill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="card actions">
+
+                <button
+                    onclick="exportCSV()"
+                    class="btn btn-primary"
+                >
+                    📊 Export Report
+                </button>
+
+                <button
+                    onclick="finalizeSession()"
+                    class="btn btn-secondary"
+                >
+                    ✅ Finalize Session
+                </button>
+
+                <button
+                    onclick="sendEmailReport()"
+                    class="btn btn-secondary"
+                >
+                    📧 Email Report to HOD
+                </button>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- ATTENDANCE TABLE -->
+    <section class="card table-card">
+
+        <div class="card-header">
+
+            <h3>
+                Attendance Records
+            </h3>
+
+            <div class="live-badge">
+                <span class="dot"></span>
+                Live
+            </div>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Check-in Time</th>
+                        <th>Liveness</th>
+                        <th>Challenge Type</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="attendanceList">
+
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="empty-state"
+                        >
+                            Loading database...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="footer-pro">
+
+    <p>
+        CIG College of Engineering |
+        Department of Computer Science |
+        Final Year Project 2026
+    </p>
+
+    <p class="footer-sub">
+        Anti-Proxy Detection Enabled |
+        AI-Powered Liveness Verification
+    </p>
+
+</footer>
+
+</body>
+</html>
